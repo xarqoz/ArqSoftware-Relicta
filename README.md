@@ -20,12 +20,15 @@ Nginx :80
 cp .env.example .env
 
 # 2. Construir y levantar todos los servicios
-docker-compose up --build
+docker compose up --build
 
-# 3. Verificar servicios
-curl http://localhost/api/v1/reservas/crear/    # → Django
-curl http://localhost/api/v2/pagos/health       # → Flask
+# 3. Verificar servicios (Nginx expone el puerto 8080 del host por defecto)
+curl http://localhost:8080/admin/                  # → Django
+curl http://localhost:8080/api/v2/pagos/health     # → Flask
 ```
+
+> El puerto del host se controla con `NGINX_HOST_PORT` en `.env` (por defecto `8080`).
+> Cámbialo si ese puerto está ocupado.
 
 ## Endpoints
 
