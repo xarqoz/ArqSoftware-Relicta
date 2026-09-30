@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n(_e)o*8lcm*8_9d8bqa_19s0xvm(bl45#qh6q(j%6=w8r$^bt'
+# En producción/Docker se inyecta vía la variable de entorno DJANGO_SECRET_KEY.
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-n(_e)o*8lcm*8_9d8bqa_19s0xvm(bl45#qh6q(j%6=w8r$^bt',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Se controla vía la variable de entorno DEBUG (0 = off, 1 = on).
+DEBUG = os.getenv('DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = []
+# Hosts permitidos: en Docker, Nginx reenvía las peticiones al contenedor.
+# Se pueden pasar hosts adicionales separados por comas vía DJANGO_ALLOWED_HOSTS.
+ALLOWED_HOSTS = os.getenv(
+    'DJANGO_ALLOWED_HOSTS',
+    'localhost,127.0.0.1,django_web,0.0.0.0',
+).split(',')
 
 
 # Application definition

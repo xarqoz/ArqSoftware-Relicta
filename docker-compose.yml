@@ -24,6 +24,7 @@ services:
       - ENV_TYPE=PROD
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-super-secret-dev-key-change-in-prod}
       - DEBUG=${DEBUG:-0}
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django_web,0.0.0.0,nginx
     volumes:
       - django_data:/app/data
     networks:
