@@ -1,5 +1,6 @@
 # ── Monolito Django ───────────────────────────────────────────────────────────
-FROM python:3.11-slim
+# Django 6.0 requiere Python 3.12+ (no soporta 3.11).
+FROM python:3.12-slim
 
 LABEL maintainer="ArqSoftware-Relicta"
 LABEL description="Monolito Django — Reservas"
@@ -16,11 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Instalar solo las dependencias esenciales de Django
 # (se excluyen matplotlib, jupyter, etc. que son para notebooks locales)
-# Las versiones coinciden con las del requirements.txt del proyecto.
+# djangorestframework se deja sin pin exacto para que pip elija la versión
+# compatible con Django 6.0 (evita fallos por pins inexistentes).
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
-    Django==6.0.7 \
-    djangorestframework==3.18.0 \
+    "Django>=6.0,<6.1" \
+    djangorestframework \
     gunicorn==23.0.0
 
 # Copiar código fuente
