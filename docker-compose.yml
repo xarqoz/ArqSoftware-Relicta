@@ -25,6 +25,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-super-secret-dev-key-change-in-prod}
       - DEBUG=${DEBUG:-0}
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django_web,0.0.0.0,nginx
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080,http://localhost,http://127.0.0.1}
       - DJANGO_DB_PATH=/app/data/db.sqlite3
     volumes:
       - django_data:/app/data

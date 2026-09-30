@@ -38,6 +38,18 @@ ALLOWED_HOSTS = os.getenv(
     'localhost,127.0.0.1,django_web,0.0.0.0',
 ).split(',')
 
+# Orígenes de confianza para CSRF. Necesario cuando Django corre detrás de un
+# proxy (Nginx) en un puerto distinto al estándar. Sin esto, los formularios
+# POST del admin fallan con "CSRF verification failed (403)".
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'DJANGO_CSRF_TRUSTED_ORIGINS',
+    'http://localhost:8080,http://127.0.0.1:8080,http://localhost,http://127.0.0.1',
+).split(',')
+
+# Django confía en el header X-Forwarded-Proto que envía Nginx para saber si
+# la petición original fue HTTP o HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
