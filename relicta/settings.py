@@ -88,7 +88,9 @@ WSGI_APPLICATION = 'relicta.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # En Docker se apunta a /app/data (volumen persistente) vía DJANGO_DB_PATH.
+        # En local, por defecto usa db.sqlite3 en la raíz del proyecto.
+        'NAME': os.getenv('DJANGO_DB_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 

@@ -16,10 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Instalar solo las dependencias esenciales de Django
 # (se excluyen matplotlib, jupyter, etc. que son para notebooks locales)
+# Las versiones coinciden con las del requirements.txt del proyecto.
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
-    Django==5.2 \
-    djangorestframework==3.16.0 \
+    Django==6.0.7 \
+    djangorestframework==3.18.0 \
     gunicorn==23.0.0
 
 # Copiar código fuente
