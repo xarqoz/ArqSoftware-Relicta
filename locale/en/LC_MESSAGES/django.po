@@ -1,0 +1,155 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Relicta 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-30 18:00+0000\n"
+"PO-Revision-Date: 2026-09-30 18:00+0000\n"
+"Last-Translator: ArqSoftware-Relicta\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Español"
+msgstr "Spanish"
+
+msgid "English"
+msgstr "English"
+
+msgid "Idioma"
+msgstr "Language"
+
+msgid "Reservas de Piezas de Colección"
+msgstr "Collectible Reservations"
+
+msgid "Arquitectura Híbrida"
+msgstr "Hybrid Architecture"
+
+msgid "Arquitectura de Software 2026"
+msgstr "Software Architecture 2026"
+
+msgid "Panel de Control"
+msgstr "Dashboard"
+
+msgid "Ecosistema de Microservicios"
+msgstr "Microservices Ecosystem"
+
+msgid "Panel de Control del Sistema"
+msgstr "System Control Panel"
+
+msgid ""
+"Monitorea el monolito Django, el microservicio de pagos en Flask y las "
+"integraciones externas desde un solo lugar."
+msgstr ""
+"Monitor the Django monolith, the Flask payments microservice and external "
+"integrations from a single place."
+
+msgid "Cliente"
+msgstr "Client"
+
+msgid "Productos"
+msgstr "Products"
+
+msgid "Reservas"
+msgstr "Reservations"
+
+msgid "Órdenes"
+msgstr "Orders"
+
+msgid "Pagos"
+msgstr "Payments"
+
+msgid "Servicio a Proveer"
+msgstr "Provided Service"
+
+msgid "Información del sistema expuesta para el equipo aliado."
+msgstr "System information exposed for the partner team."
+
+msgid "Obtener info del sistema"
+msgstr "Get system info"
+
+msgid "Servicio del Aliado"
+msgstr "Partner Service"
+
+msgid "Consumo"
+msgstr "Consumption"
+
+msgid "Consume el endpoint del equipo aliado."
+msgstr "Consumes the partner team's endpoint."
+
+msgid "Consultar aliado"
+msgstr "Query partner"
+
+msgid "Conversión de Moneda"
+msgstr "Currency Conversion"
+
+msgid "API de terceros consumida mediante el Patrón Adapter."
+msgstr "Third-party API consumed through the Adapter Pattern."
+
+msgid "Monto"
+msgstr "Amount"
+
+msgid "Moneda origen"
+msgstr "Source currency"
+
+msgid "Moneda destino"
+msgstr "Target currency"
+
+msgid "Convertir"
+msgstr "Convert"
+
+msgid "Tareas Asíncronas"
+msgstr "Asynchronous Tasks"
+
+msgid "Procesos de fondo vía Message Broker, sin bloquear la interfaz."
+msgstr "Background processes via Message Broker, without blocking the UI."
+
+msgid "Generar reporte"
+msgstr "Generate report"
+
+msgid "Enviar notificación"
+msgstr "Send notification"
+
+msgid "Catálogo"
+msgstr "Catalog"
+
+msgid "Edición limitada"
+msgstr "Limited edition"
+
+msgid "No hay productos. Agrégalos desde el panel de administración."
+msgstr "No products. Add them from the admin panel."
+
+msgid "Producto"
+msgstr "Product"
+
+msgid "Usuario"
+msgstr "User"
+
+msgid "Anticipo"
+msgstr "Deposit"
+
+msgid "Estado"
+msgstr "Status"
+
+msgid "Reservas Recientes"
+msgstr "Recent Reservations"
+
+msgid "Aún no hay reservas registradas."
+msgstr "No reservations yet."
+
+#, python-format
+msgid "%(stock)s en stock"
+msgid_plural "%(stock)s en stock"
+msgstr[0] "%(stock)s in stock"
+msgstr[1] "%(stock)s in stock"
+
+msgid "El parámetro 'monto' debe ser numérico"
+msgstr "The 'amount' parameter must be numeric"
+
+msgid "Reporte encolado. Se procesará en segundo plano."
+msgstr "Report queued. It will be processed in the background."
+
+msgid "Notificación encolada para envío asíncrono."
+msgstr "Notification queued for asynchronous delivery."

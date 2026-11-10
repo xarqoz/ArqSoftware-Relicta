@@ -1,0 +1,58 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Relicta{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="aurora"></div>
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark">◆</span>
+            <div>
+                <h1 class="brand-name">Relicta</h1>
+                <p class="brand-tag">{% trans "Reservas de Piezas de Colección" %}</p>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <span class="status-pill" id="arch-pill">
+                <span class="dot"></span> {% trans "Arquitectura Híbrida" %}
+            </span>
+
+            <!-- Selector de idioma (i18n) -->
+            <form action="{% url 'set_language' %}" method="post" class="lang-form">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}">
+                <select name="language" onchange="this.form.submit()" class="lang-select" aria-label="{% trans 'Idioma' %}">
+                    {% get_current_language as CURRENT %}
+                    {% get_available_languages as LANGS %}
+                    {% for code, name in LANGS %}
+                        <option value="{{ code }}" {% if code == CURRENT %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>{% trans "Arquitectura de Software 2026" %} · Entrega 2 · Strangler Pattern</p>
+    </footer>
+
+    <!-- Toast de notificaciones -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

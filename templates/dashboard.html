@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Panel de Control" %} · Relicta{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ─────────────────────────────────────────────────────────── -->
+<section class="hero reveal">
+    <div class="hero-text">
+        <span class="eyebrow">{% trans "Ecosistema de Microservicios" %}</span>
+        <h2>{% trans "Panel de Control del Sistema" %}</h2>
+        <p>{% trans "Monitorea el monolito Django, el microservicio de pagos en Flask y las integraciones externas desde un solo lugar." %}</p>
+    </div>
+    <div class="hero-arch">
+        <div class="node node-client">{% trans "Cliente" %}</div>
+        <div class="arrow">↓</div>
+        <div class="node node-nginx">Nginx <small>API Gateway</small></div>
+        <div class="split">
+            <div class="branch">
+                <div class="arrow">↓</div>
+                <div class="node node-django">Django <small>/api/v1/</small></div>
+            </div>
+            <div class="branch">
+                <div class="arrow">↓</div>
+                <div class="node node-flask">Flask <small>/api/v2/pagos/</small></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── MÉTRICAS ─────────────────────────────────────────────────────── -->
+<section class="metrics">
+    <div class="metric-card reveal" style="--d:0">
+        <span class="metric-icon">📦</span>
+        <div class="metric-value" data-count="{{ total_productos }}">0</div>
+        <div class="metric-label">{% trans "Productos" %}</div>
+    </div>
+    <div class="metric-card reveal" style="--d:1">
+        <span class="metric-icon">🎫</span>
+        <div class="metric-value" data-count="{{ total_reservas }}">0</div>
+        <div class="metric-label">{% trans "Reservas" %}</div>
+    </div>
+    <div class="metric-card reveal" style="--d:2">
+        <span class="metric-icon">🧾</span>
+        <div class="metric-value" data-count="{{ total_ordenes }}">0</div>
+        <div class="metric-label">{% trans "Órdenes" %}</div>
+    </div>
+    <div class="metric-card reveal" style="--d:3">
+        <span class="metric-icon">💳</span>
+        <div class="metric-value" data-count="{{ total_pagos }}">0</div>
+        <div class="metric-label">{% trans "Pagos" %}</div>
+    </div>
+</section>
+
+<!-- ── PANELES DE INTEGRACIÓN ──────────────────────────────────────── -->
+<section class="panels">
+
+    <!-- Servicio a Proveer -->
+    <article class="panel reveal">
+        <header class="panel-head">
+            <h3>🛰️ {% trans "Servicio a Proveer" %}</h3>
+            <span class="tag tag-green">JSON</span>
+        </header>
+        <p class="panel-desc">{% trans "Información del sistema expuesta para el equipo aliado." %}</p>
+        <button class="btn btn-primary" data-action="info">{% trans "Obtener info del sistema" %}</button>
+        <pre class="output" id="out-info"></pre>
+    </article>
+
+    <!-- Servicio a Consumir -->
+    <article class="panel reveal">
+        <header class="panel-head">
+            <h3>🤝 {% trans "Servicio del Aliado" %}</h3>
+            <span class="tag tag-blue">{% trans "Consumo" %}</span>
+        </header>
+        <p class="panel-desc">{% trans "Consume el endpoint del equipo aliado." %}</p>
+        <button class="btn btn-primary" data-action="aliado">{% trans "Consultar aliado" %}</button>
+        <pre class="output" id="out-aliado"></pre>
+    </article>
+
+    <!-- API de Terceros vía Adapter -->
+    <article class="panel reveal panel-wide">
+        <header class="panel-head">
+            <h3>🔌 {% trans "Conversión de Moneda" %}</h3>
+            <span class="tag tag-purple">Adapter</span>
+        </header>
+        <p class="panel-desc">{% trans "API de terceros consumida mediante el Patrón Adapter." %}</p>
+        <div class="form-row">
+            <input type="number" id="conv-monto" value="100" min="0" step="0.01" aria-label="{% trans 'Monto' %}">
+            <select id="conv-origen" aria-label="{% trans 'Moneda origen' %}">
+                <option value="USD">USD</option><option value="EUR">EUR</option>
+                <option value="COP">COP</option><option value="MXN">MXN</option><option value="GBP">GBP</option>
+            </select>
+            <span class="swap">→</span>
+            <select id="conv-destino" aria-label="{% trans 'Moneda destino' %}">
+                <option value="COP">COP</option><option value="USD">USD</option>
+                <option value="EUR">EUR</option><option value="MXN">MXN</option><option value="GBP">GBP</option>
+            </select>
+            <button class="btn btn-primary" data-action="conversion">{% trans "Convertir" %}</button>
+        </div>
+        <div class="conv-result" id="conv-result"></div>
+        <pre class="output" id="out-conversion"></pre>
+    </article>
+
+    <!-- Tareas asíncronas -->
+    <article class="panel reveal panel-wide">
+        <header class="panel-head">
+            <h3>⚙️ {% trans "Tareas Asíncronas" %}</h3>
+            <span class="tag tag-amber">Celery · Redis</span>
+        </header>
+        <p class="panel-desc">{% trans "Procesos de fondo vía Message Broker, sin bloquear la interfaz." %}</p>
+        <div class="btn-group">
+            <button class="btn btn-ghost" data-action="reporte">{% trans "Generar reporte" %}</button>
+            <button class="btn btn-ghost" data-action="notificacion">{% trans "Enviar notificación" %}</button>
+        </div>
+        <pre class="output" id="out-tareas"></pre>
+    </article>
+</section>
+
+<!-- ── CATÁLOGO DE PRODUCTOS ───────────────────────────────────────── -->
+<section class="reveal">
+    <h3 class="section-title">📚 {% trans "Catálogo" %}</h3>
+    {% if productos %}
+    <div class="grid-cards">
+        {% for p in productos %}
+        <div class="product-card">
+            <div class="product-head">
+                <span class="product-name">{{ p.nombre }}</span>
+                {% if p.es_edicion_limitada %}<span class="tag tag-amber">{% trans "Edición limitada" %}</span>{% endif %}
+            </div>
+            <div class="product-price">${{ p.precio_base }}</div>
+            <div class="product-stock {% if p.stock_actual == 0 %}out{% endif %}">
+                {% blocktrans count stock=p.stock_actual trimmed %}
+                    {{ stock }} en stock
+                {% plural %}
+                    {{ stock }} en stock
+                {% endblocktrans %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">{% trans "No hay productos. Agrégalos desde el panel de administración." %}</p>
+    {% endif %}
+</section>
+
+<!-- ── RESERVAS RECIENTES ──────────────────────────────────────────── -->
+<section class="reveal">
+    <h3 class="section-title">🎫 {% trans "Reservas Recientes" %}</h3>
+    {% if reservas %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th><th>{% trans "Producto" %}</th><th>{% trans "Usuario" %}</th>
+                    <th>{% trans "Anticipo" %}</th><th>{% trans "Estado" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservas %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.producto.nombre }}</td>
+                    <td>{{ r.usuario }}</td>
+                    <td>${{ r.monto_anticipo }}</td>
+                    <td><span class="badge badge-{{ r.estado }}">{{ r.get_estado_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty">{% trans "Aún no hay reservas registradas." %}</p>
+    {% endif %}
+</section>
+
+{% endblock %}

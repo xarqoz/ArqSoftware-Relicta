@@ -67,6 +67,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # LocaleMiddleware habilita la selección de idioma (i18n) por request.
+    # Debe ir después de SessionMiddleware y antes de CommonMiddleware.
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -79,7 +82,7 @@ ROOT_URLCONF = 'relicta.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,10 +129,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Internationalization — soporte bilingüe (i18n con gettext)
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
+
+from django.utils.translation import gettext_lazy as _
+
+# Idiomas soportados por la aplicación (español e inglés).
+LANGUAGES = [
+    ('es', _('Español')),
+    ('en', _('English')),
+]
+
+# Ubicación de los archivos de traducción (.po/.mo).
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 TIME_ZONE = 'UTC'
 
@@ -142,3 +156,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+
+# ── Celery + Redis (Message Broker para tareas asíncronas) ──────────────────
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+
+# ── Integraciones externas ───────────────────────────────────────────────────
+# URL del servicio del equipo aliado (configurable por entorno).
+# Por defecto usa una API pública gratuita (FakeStore) a modo de aliado de demo;
+# cámbiala por la URL real del equipo aliado vía la variable ALIADO_API_URL.
+ALIADO_API_URL = os.getenv('ALIADO_API_URL', 'https://fakestoreapi.com/products?limit=5')

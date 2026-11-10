@@ -1,14 +1,17 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# docker-compose.yml — Arquitectura Strangler Pattern
+# docker-compose.yml — Arquitectura Híbrida y Resiliente (Entrega 2)
 #
 # Topología:
 #   ┌─────────┐     ┌──────────────────────────────────────────────┐
-#   │ Cliente │────▶│                   Nginx :80                   │
+#   │ Cliente │────▶│              Nginx :80 (API Gateway)          │
 #   └─────────┘     └──────────┬───────────────────────────────────┘
 #                              │
 #             ┌────────────────┴────────────────┐
 #             ▼                                 ▼
-#    /api/v1/ ── Django :8000        /api/v2/pagos/ ── Flask :5000
+#    / y /api/v1/ ── Django :8000     /api/v2/pagos/ ── Flask :5000
+#             │
+#             ▼ (tareas async)
+#   Celery worker ──▶ Redis (Message Broker)
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -23,22 +26,23 @@ services:
     environment:
       - ENV_TYPE=PROD
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-super-secret-dev-key-change-in-prod}
-      - DEBUG=${DEBUG:-0}
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django_web,0.0.0.0,nginx
+      - DEBUG=${DEBUG:-1}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,django_web,0.0.0.0,nginx}
       - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080,http://localhost,http://127.0.0.1}
       - DJANGO_DB_PATH=/app/data/db.sqlite3
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - ALIADO_API_URL=${ALIADO_API_URL:-https://fakestoreapi.com/products?limit=5}
     volumes:
       - django_data:/app/data
+      - django_static:/app/staticfiles
     networks:
       - relicta_net
     expose:
       - "8000"
+    depends_on:
+      - redis
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/admin/')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # ── 2. Microservicio de Pagos (Flask) ───────────────────────────────────────
   flask_pagos:
@@ -57,13 +61,45 @@ services:
     expose:
       - "5000"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # ── 3. Nginx — Proxy Inverso y Enrutador de Tráfico ────────────────────────
+  # ── 3. Redis — Message Broker ───────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: relicta_redis
+    networks:
+      - relicta_net
+    expose:
+      - "6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── 4. Celery Worker — procesamiento asíncrono ───────────────────────────────
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: relicta_celery
+    command: celery -A relicta worker --loglevel=info
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-super-secret-dev-key-change-in-prod}
+      - DEBUG=0
+      - DJANGO_DB_PATH=/app/data/db.sqlite3
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    volumes:
+      - django_data:/app/data
+    networks:
+      - relicta_net
+    depends_on:
+      - redis
+      - django_web
+    restart: unless-stopped
+
+  # ── 5. Nginx — API Gateway ──────────────────────────────────────────────────
   nginx:
     image: nginx:1.27-alpine
     container_name: relicta_nginx
@@ -73,6 +109,8 @@ services:
       - "${NGINX_HOST_PORT:-8080}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Sirve los archivos estáticos recolectados por Django.
+      - django_static:/app/staticfiles:ro
     depends_on:
       - django_web
       - flask_pagos
@@ -85,6 +123,8 @@ volumes:
   django_data:
     driver: local
   pagos_data:
+    driver: local
+  django_static:
     driver: local
 
 # ── Red interna ────────────────────────────────────────────────────────────────

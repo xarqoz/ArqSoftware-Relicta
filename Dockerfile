@@ -15,20 +15,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar solo las dependencias esenciales de Django
-# (se excluyen matplotlib, jupyter, etc. que son para notebooks locales)
-# djangorestframework se deja sin pin exacto para que pip elija la versión
-# compatible con Django 6.0 (evita fallos por pins inexistentes).
+# Instalar dependencias desde requirements.txt
+# (Django, DRF, Gunicorn, Celery, Redis, requests).
 COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    "Django>=6.0,<6.1" \
-    djangorestframework \
-    gunicorn==23.0.0
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código fuente
 COPY . .
 
-# Ejecutar migraciones y luego levantar con Gunicorn
+# Preparar directorio de estáticos y volumen de datos
+RUN mkdir -p /app/data /app/staticfiles
+
+# Ejecutar migraciones, recolectar estáticos y levantar con Gunicorn
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate --no-input && gunicorn relicta.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
+CMD ["sh", "-c", "python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn relicta.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
