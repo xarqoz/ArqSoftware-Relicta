@@ -6,8 +6,11 @@ djangorestframework==3.18.0
 gunicorn==23.0.0
 
 # ── Comunicación asíncrona (Message Broker) ─────────────────────────────────
-celery==5.4.0
-redis==5.2.1
+# celery[redis] arrastra una versión de redis-py compatible con el kombu que
+# instala Celery. Se fija redis>=6.1 porque kombu reciente lo exige (evita
+# el error "Redis transport requires redis-py versions 6.1.0 or later").
+celery[redis]==5.5.3
+redis>=6.1.0
 
 # ── Consumo de APIs externas (Servicio aliado + Adapter de terceros) ─────────
 requests==2.32.3
