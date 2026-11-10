@@ -153,3 +153,51 @@ msgstr "Report queued. It will be processed in the background."
 
 msgid "Notificación encolada para envío asíncrono."
 msgstr "Notification queued for asynchronous delivery."
+
+msgid "Reservar"
+msgstr "Reserve"
+
+msgid "Crear Reserva"
+msgstr "Create Reservation"
+
+msgid "Monolito Django"
+msgstr "Django Monolith"
+
+msgid "Crear una Reserva"
+msgstr "Create a Reservation"
+
+msgid "Reserva una pieza de colección. La lógica usa el patrón Builder y el servicio de reservas del monolito."
+msgstr "Reserve a collectible item. The logic uses the Builder pattern and the monolith's reservation service."
+
+msgid "Volver al panel"
+msgstr "Back to dashboard"
+
+msgid "Nueva Reserva"
+msgstr "New Reservation"
+
+msgid "Formulario"
+msgstr "Form"
+
+msgid "— Selecciona —"
+msgstr "— Select —"
+
+msgid "Fecha límite"
+msgstr "Deadline"
+
+msgid "Monto de anticipo"
+msgstr "Deposit amount"
+
+msgid "Crear reserva"
+msgstr "Create reservation"
+
+msgid "Necesitas al menos un producto con stock y un usuario. Créalos en el panel de administración (/admin/)."
+msgstr "You need at least one product in stock and a user. Create them in the admin panel (/admin/)."
+
+msgid "Todos los campos son obligatorios."
+msgstr "All fields are required."
+
+msgid "Producto o usuario no encontrado."
+msgstr "Product or user not found."
+
+msgid "Aún no hay reservas."
+msgstr "No reservations yet."
