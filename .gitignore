@@ -5,3 +5,9 @@ __pycache__/
 db.sqlite3
 *.db
 .env
+
+# Archivos estáticos recolectados (se generan en el build/deploy)
+/staticfiles/
+
+# NOTA: los archivos .mo (traducciones compiladas) SÍ se versionan
+# para que el contenedor no necesite compilarlos.
