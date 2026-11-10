@@ -171,4 +171,6 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # ── Integraciones externas ───────────────────────────────────────────────────
 # URL del servicio del equipo aliado (configurable por entorno).
-ALIADO_API_URL = os.getenv('ALIADO_API_URL', 'http://localhost:8000/api/v1/info/')
+# Por defecto usa una API pública gratuita (FakeStore) a modo de aliado de demo;
+# cámbiala por la URL real del equipo aliado vía la variable ALIADO_API_URL.
+ALIADO_API_URL = os.getenv('ALIADO_API_URL', 'https://fakestoreapi.com/products?limit=5')

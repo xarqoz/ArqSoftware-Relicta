@@ -19,12 +19,14 @@ logger = logging.getLogger(__name__)
 class AliadoClient:
     """Consume el endpoint de información del sistema del equipo aliado."""
 
+    # API pública gratuita usada como "equipo aliado" por defecto.
+    # FakeStore expone un catálogo de productos en JSON, sin API key.
+    # Cuando el equipo aliado real entregue su URL, basta con setear
+    # la variable de entorno ALIADO_API_URL (sin tocar el código).
+    DEFAULT_ALIADO_URL = "https://fakestoreapi.com/products?limit=5"
+
     def __init__(self, base_url: str | None = None, timeout: int = 5):
-        # Si no hay aliado configurado, se apunta a nuestro propio endpoint
-        # de demostración para que la pantalla siempre tenga datos.
-        self.base_url = base_url or os.getenv(
-            "ALIADO_API_URL", "http://localhost:8000/api/v1/info/"
-        )
+        self.base_url = base_url or os.getenv("ALIADO_API_URL", self.DEFAULT_ALIADO_URL)
         self.timeout = timeout
 
     def obtener_info(self) -> dict:

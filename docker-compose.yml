@@ -27,12 +27,12 @@ services:
       - ENV_TYPE=PROD
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-super-secret-dev-key-change-in-prod}
       - DEBUG=${DEBUG:-1}
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django_web,0.0.0.0,nginx
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,django_web,0.0.0.0,nginx}
       - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080,http://localhost,http://127.0.0.1}
       - DJANGO_DB_PATH=/app/data/db.sqlite3
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - ALIADO_API_URL=${ALIADO_API_URL:-http://django_web:8000/api/v1/info/}
+      - ALIADO_API_URL=${ALIADO_API_URL:-https://fakestoreapi.com/products?limit=5}
     volumes:
       - django_data:/app/data
       - django_static:/app/staticfiles
