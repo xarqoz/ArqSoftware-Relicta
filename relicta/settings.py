@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n(_e)o*8lcm*8_9d8bqa_19s0xvm(bl45#qh6q(j%6=w8r$^bt'
+# En producción/Docker se inyecta vía la variable de entorno DJANGO_SECRET_KEY.
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-n(_e)o*8lcm*8_9d8bqa_19s0xvm(bl45#qh6q(j%6=w8r$^bt',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Se controla vía la variable de entorno DEBUG (0 = off, 1 = on).
+DEBUG = os.getenv('DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = []
+# Hosts permitidos: en Docker, Nginx reenvía las peticiones al contenedor.
+# Se pueden pasar hosts adicionales separados por comas vía DJANGO_ALLOWED_HOSTS.
+ALLOWED_HOSTS = os.getenv(
+    'DJANGO_ALLOWED_HOSTS',
+    'localhost,127.0.0.1,django_web,0.0.0.0',
+).split(',')
+
+# Orígenes de confianza para CSRF. Necesario cuando Django corre detrás de un
+# proxy (Nginx) en un puerto distinto al estándar. Sin esto, los formularios
+# POST del admin fallan con "CSRF verification failed (403)".
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'DJANGO_CSRF_TRUSTED_ORIGINS',
+    'http://localhost:8080,http://127.0.0.1:8080,http://localhost,http://127.0.0.1',
+).split(',')
+
+# Django confía en el header X-Forwarded-Proto que envía Nginx para saber si
+# la petición original fue HTTP o HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -77,7 +100,9 @@ WSGI_APPLICATION = 'relicta.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # En Docker se apunta a /app/data (volumen persistente) vía DJANGO_DB_PATH.
+        # En local, por defecto usa db.sqlite3 en la raíz del proyecto.
+        'NAME': os.getenv('DJANGO_DB_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
