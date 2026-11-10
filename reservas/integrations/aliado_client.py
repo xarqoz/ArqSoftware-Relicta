@@ -20,10 +20,10 @@ class AliadoClient:
     """Consume el endpoint de información del sistema del equipo aliado."""
 
     # API pública gratuita usada como "equipo aliado" por defecto.
-    # FakeStore expone un catálogo de productos en JSON, sin API key.
-    # Cuando el equipo aliado real entregue su URL, basta con setear
+    # DummyJSON expone un catálogo de productos en JSON, sin API key y es
+    # estable. Cuando el equipo aliado real entregue su URL, basta con setear
     # la variable de entorno ALIADO_API_URL (sin tocar el código).
-    DEFAULT_ALIADO_URL = "https://fakestoreapi.com/products?limit=5"
+    DEFAULT_ALIADO_URL = "https://dummyjson.com/products?limit=5"
 
     def __init__(self, base_url: str | None = None, timeout: int = 5):
         self.base_url = base_url or os.getenv("ALIADO_API_URL", self.DEFAULT_ALIADO_URL)
@@ -32,7 +32,9 @@ class AliadoClient:
     def obtener_info(self) -> dict:
         """Devuelve la info del aliado o un payload de error controlado."""
         try:
-            resp = requests.get(self.base_url, timeout=self.timeout)
+            # Algunas APIs rechazan peticiones sin User-Agent (403). Lo enviamos.
+            headers = {"User-Agent": "Relicta/2.0 (+https://github.com/xarqoz/ArqSoftware-Relicta)"}
+            resp = requests.get(self.base_url, timeout=self.timeout, headers=headers)
             resp.raise_for_status()
             data = resp.json()
             return {

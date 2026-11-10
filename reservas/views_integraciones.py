@@ -13,13 +13,17 @@ import platform
 from datetime import datetime, timezone
 
 from django.conf import settings
-from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.utils.translation import gettext as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Reserva, Producto, Orden, Pago
+from .services import ReservaService
 from .integrations.adapters import obtener_adaptador_tasas
 from .integrations.aliado_client import AliadoClient
 from .tasks import generar_reporte_reservas, enviar_notificacion_reserva
@@ -144,3 +148,61 @@ def dashboard(request):
         "reservas": Reserva.objects.select_related("producto", "usuario").all()[:10],
     }
     return render(request, "dashboard.html", contexto)
+
+
+# ── 6. FORMULARIO WEB DE RESERVAS ────────────────────────────────────────────
+def crear_reserva_web(request):
+    """Formulario web para crear reservas (GET muestra, POST procesa).
+
+    Reutiliza la misma lógica de negocio del monolito (ReservaService +
+    ReservaBuilder) que usa la API REST, demostrando reutilización de capas.
+    """
+    User = get_user_model()
+
+    if request.method == "POST":
+        producto_id = request.POST.get("producto_id")
+        usuario_id = request.POST.get("usuario_id")
+        fecha_limite = request.POST.get("fecha_limite")
+        monto_anticipo = request.POST.get("monto_anticipo")
+
+        # Validación básica de campos obligatorios
+        if not all([producto_id, usuario_id, fecha_limite, monto_anticipo]):
+            messages.error(request, _("Todos los campos son obligatorios."))
+            return redirect("crear_reserva_web")
+
+        try:
+            producto = Producto.objects.get(id=producto_id)
+            usuario = User.objects.get(id=usuario_id)
+        except (Producto.DoesNotExist, User.DoesNotExist):
+            messages.error(request, _("Producto o usuario no encontrado."))
+            return redirect("crear_reserva_web")
+
+        service = ReservaService()
+        try:
+            reserva = service.crear_reserva({
+                "usuario": usuario,
+                "producto": producto,
+                "fecha_limite": fecha_limite,
+                "monto_anticipo": monto_anticipo,
+            })
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return redirect("crear_reserva_web")
+        except ValidationError as exc:
+            messages.error(request, _("Datos inválidos: %(err)s") % {"err": exc})
+            return redirect("crear_reserva_web")
+
+        messages.success(
+            request,
+            _("Reserva #%(id)s creada correctamente para %(prod)s.")
+            % {"id": reserva.id, "prod": producto.nombre},
+        )
+        return redirect("crear_reserva_web")
+
+    # GET — mostrar el formulario
+    contexto = {
+        "productos": Producto.objects.filter(stock_actual__gt=0),
+        "usuarios": User.objects.all(),
+        "reservas": Reserva.objects.select_related("producto", "usuario").order_by("-creada_en")[:10],
+    }
+    return render(request, "crear_reserva.html", contexto)
